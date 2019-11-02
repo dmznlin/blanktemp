@@ -13,7 +13,8 @@ uses
   cxData, cxDataStorage, cxEdit, DB, cxDBData, cxContainer, ADODB, cxLabel,
   UBitmapPanel, cxSplitter, dxLayoutControl, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridDBTableView, cxGrid, ComCtrls, ToolWin;
+  cxGridDBTableView, cxGrid, ComCtrls, ToolWin, Menus, 
+  cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameNormal = class(TBaseFrame)
@@ -41,6 +42,14 @@ type
     cxSplitter1: TcxSplitter;
     TitlePanel1: TZnBitmapPanel;
     TitleBar: TcxLabel;
+    cxPMenu1: TcxGridPopupMenu;
+    PMenu1: TPopupMenu;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    PMenu2: TPopupMenu;
+    N4: TMenuItem;
+    N5: TMenuItem;
     procedure BtnRefreshClick(Sender: TObject);
     procedure BtnExportClick(Sender: TObject);
     procedure BtnPrintClick(Sender: TObject);
@@ -54,6 +63,8 @@ type
     procedure BtnExitClick(Sender: TObject);
     procedure cxView1KeyPress(Sender: TObject; var Key: Char);
     procedure cxView1DataControllerGroupingChanged(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure N4Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -88,6 +99,9 @@ type
     procedure GetData(Sender: TObject; var nData: string); virtual;
     function SetData(Sender: TObject; const nData: string): Boolean; virtual;
     {*读写数据*}
+    function GetSelectedVal(const nRow: Integer; const nField: string): string;
+    function GetSelecedColumnFilterData(const nHasData: Boolean): TcxGridDBColumn;
+    {*获取数据*}
   public
     { Public declarations }
   published
@@ -102,8 +116,8 @@ implementation
 {$R *.dfm}
 
 uses
-  ULibFun, UAdjustForm, UFormWait, UFormCtrl, UDataModule, USysConst, USysGrid,
-  USysDataDict, USysPopedom, USysDB;
+  ULibFun, UAdjustForm, UFormWait, UFormCtrl, UFormAdvFilter, UDataModule,
+  USysConst, USysGrid, USysDataDict, USysPopedom, USysDB;
 
 procedure TfFrameNormal.OnCreateFrame;
 var nStr: string;
@@ -425,6 +439,84 @@ procedure TfFrameNormal.cxView1FocusedRecordChanged(
 begin
   if FShowDetailInfo and Assigned(APrevFocusedRecord) then
     LoadDataToCtrl(SQLQuery, dxLayout1, '', SetData);
+end;
+
+//------------------------------------------------------------------------------
+//Desc: 获取被选中的第nRow行nField字段的内容
+function TfFrameNormal.GetSelectedVal(const nRow: Integer; const nField: string): string;
+var nVal: Variant;
+begin
+  nVal := cxView1.DataController.GetValue(
+            cxView1.Controller.SelectedRows[nRow].RecordIndex,
+            cxView1.GetColumnByFieldName(nField).Index);
+  //xxxxx
+
+  if VarIsNull(nVal) then
+       Result := ''
+  else Result := nVal;
+end;
+
+//Desc: 获取选中列的可筛选数据
+function TfFrameNormal.GetSelecedColumnFilterData;
+var nStr: string;
+    nIdx,nInt: Integer;
+begin
+  Result := TcxGridColumnHeaderHitTest(cxPMenu1.HitTest).Column as TcxGridDBColumn;
+  if GetKeyState(VK_CONTROL) and $8000 = $8000 then Exit; //ctrl key press
+
+  gFilterText := '';
+  if not nHasData then Exit;
+
+  SetLength(gFilterItems, cxView1.DataController.GetRowCount);
+  if Length(gFilterItems) < 1 then Exit;
+  //no data
+
+  nStr := Result.DataBinding.FieldName;
+  nInt := cxView1.GetColumnByFieldName(nStr).Index;
+  //init
+  
+  for nIdx:=0 to cxView1.DataController.GetRowCount-1 do
+  begin
+    with gFilterItems[nIdx] do
+    begin
+      FValid := True;
+      FSelected := False;
+      FText := cxView1.ViewData.Rows[nIdx].DisplayTexts[nInt];
+    end;
+  end;
+
+  for nIdx:=Low(gFilterItems) to High(gFilterItems) do
+  begin
+    if not gFilterItems[nIdx].FValid then Continue;
+    //invalid
+
+    gFilterItems[nIdx].FCharacter := GetPinYinOfStr(gFilterItems[nIdx].FText);
+    //pinyin
+
+    for nInt:=nIdx+1 to High(gFilterItems) do
+    begin
+      if gFilterItems[nInt].FValid and
+         (gFilterItems[nInt].FText = gFilterItems[nIdx].FText) then
+        gFilterItems[nInt].FValid := False;
+      //xxxxx
+    end;
+  end;
+end;
+
+//Desc: 排除选中的内容
+procedure TfFrameNormal.N2Click(Sender: TObject);
+begin
+  case TComponent(Sender).Tag of
+   10: ShowAdvFilterForm(cxView1, GetSelecedColumnFilterData(True), foNotEqual);
+   20: ShowAdvFilterForm(cxView1, GetSelecedColumnFilterData(False), foNotLike);
+   30: ShowAdvFilterForm(cxView1, GetSelecedColumnFilterData(False), foLike);
+  end;
+end;
+
+//Desc: 自动列宽
+procedure TfFrameNormal.N4Click(Sender: TObject);
+begin
+  GetSelecedColumnFilterData(False).ApplyBestFit();
 end;
 
 end.

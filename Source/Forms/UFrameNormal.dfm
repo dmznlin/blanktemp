@@ -195,4 +195,56 @@ inherited fFrameNormal: TfFrameNormal
     Left = 34
     Top = 202
   end
+  object cxPMenu1: TcxGridPopupMenu
+    Grid = cxGrid1
+    PopupMenus = <
+      item
+        GridView = cxView1
+        HitTypes = [gvhtColumnHeaderFilterButton]
+        Index = 0
+        PopupMenu = PMenu1
+      end
+      item
+        GridView = cxView1
+        HitTypes = [gvhtColumnHeader]
+        Index = 1
+        PopupMenu = PMenu2
+      end>
+    UseBuiltInPopupMenus = False
+    Left = 6
+    Top = 230
+  end
+  object PMenu1: TPopupMenu
+    AutoHotkeys = maManual
+    Left = 34
+    Top = 230
+    object N1: TMenuItem
+      Caption = #8251#39640#32423#31579#36873#8251
+      Enabled = False
+    end
+    object N2: TMenuItem
+      Tag = 10
+      Caption = '  '#25490#38500#36873#20013
+      OnClick = N2Click
+    end
+    object N3: TMenuItem
+      Tag = 20
+      Caption = '  '#27169#31946#25490#38500
+      OnClick = N2Click
+    end
+    object N5: TMenuItem
+      Tag = 30
+      Caption = '  '#27169#31946#21253#21547
+      OnClick = N2Click
+    end
+  end
+  object PMenu2: TPopupMenu
+    AutoHotkeys = maManual
+    Left = 62
+    Top = 230
+    object N4: TMenuItem
+      Caption = #33258#21160#21015#23485
+      OnClick = N4Click
+    end
+  end
 end
