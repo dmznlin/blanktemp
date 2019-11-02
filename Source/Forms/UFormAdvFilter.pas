@@ -9,8 +9,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   StdCtrls, UFormNormal, cxGridTableView, cxFilter, cxGraphics, cxControls,
-  cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
-  dxSkinsDefaultPainters, ImgList, cxContainer, cxCheckListBox,
+  cxLookAndFeels, cxLookAndFeelPainters, ImgList, cxContainer, cxCheckListBox,
   dxLayoutControl, cxEdit, cxTextEdit, cxCheckBox;
 
 type

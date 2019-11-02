@@ -43,13 +43,13 @@ type
     TitlePanel1: TZnBitmapPanel;
     TitleBar: TcxLabel;
     cxPMenu1: TcxGridPopupMenu;
-    PMenu1: TPopupMenu;
-    N1: TMenuItem;
-    N2: TMenuItem;
-    N3: TMenuItem;
-    PMenu2: TPopupMenu;
-    N4: TMenuItem;
-    N5: TMenuItem;
+    BasePMenu1: TPopupMenu;
+    BaseN1: TMenuItem;
+    BaseN2: TMenuItem;
+    BaseN3: TMenuItem;
+    BasePMenu2: TPopupMenu;
+    BaseN4: TMenuItem;
+    BaseN5: TMenuItem;
     procedure BtnRefreshClick(Sender: TObject);
     procedure BtnExportClick(Sender: TObject);
     procedure BtnPrintClick(Sender: TObject);
@@ -63,8 +63,8 @@ type
     procedure BtnExitClick(Sender: TObject);
     procedure cxView1KeyPress(Sender: TObject; var Key: Char);
     procedure cxView1DataControllerGroupingChanged(Sender: TObject);
-    procedure N2Click(Sender: TObject);
-    procedure N4Click(Sender: TObject);
+    procedure BaseN2Click(Sender: TObject);
+    procedure BaseN4Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -84,6 +84,7 @@ type
     procedure OnCreateFrame; override;
     procedure OnDestroyFrame; override;
     procedure OnLoadPopedom; override;
+    procedure OnShowFrame; override;
     {*基类函数*}
     function FilterColumnField: string; virtual;
     procedure OnLoadGridConfig(const nIni: TIniFile); virtual;
@@ -215,6 +216,16 @@ end;
 function TfFrameNormal.FrameTitle: string;
 begin
   Result := TitleBar.Caption;
+end;
+
+//Desc: 管理快捷菜单
+procedure TfFrameNormal.OnShowFrame;
+begin
+  if Assigned(cxView1.PopupMenu) then
+  begin
+    cxPMenu1.PopupMenus[2].PopupMenu := cxView1.PopupMenu;
+    cxView1.PopupMenu := nil;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -504,7 +515,7 @@ begin
 end;
 
 //Desc: 排除选中的内容
-procedure TfFrameNormal.N2Click(Sender: TObject);
+procedure TfFrameNormal.BaseN2Click(Sender: TObject);
 begin
   case TComponent(Sender).Tag of
    10: ShowAdvFilterForm(cxView1, GetSelecedColumnFilterData(True), foNotEqual);
@@ -514,7 +525,7 @@ begin
 end;
 
 //Desc: 自动列宽
-procedure TfFrameNormal.N4Click(Sender: TObject);
+procedure TfFrameNormal.BaseN4Click(Sender: TObject);
 begin
   GetSelecedColumnFilterData(False).ApplyBestFit();
 end;

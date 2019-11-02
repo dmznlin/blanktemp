@@ -4,7 +4,7 @@ inherited fFormAdvFilter: TfFormAdvFilter
   Width = 321
   Height = 356
   BorderStyle = bsSizeable
-  Caption = #31579#36873#26465#20214
+  Caption = #39640#32423#31579#36873
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
